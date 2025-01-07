@@ -1,6 +1,6 @@
 # Leaflitter
 
-A disassembly of Paper Mario: Sticker Star (Europe)
+A WIP decompilation of Paper Mario: Sticker Star (Europe)
 
 ## Getting Started
 
@@ -22,6 +22,19 @@ Download [n3dsdisasm.exe](https://github.com/gamestabled/n3dsdisasm/releases) if
 
 Open the Terminal or Git Bash and run `./disassemble.sh`. This will generate the disassembly into `asm/disasm.s`.
 
-### Extending the config file
+## Building
 
-TODO
+Compiling on Windows is not possible yet, instructions on how to do this follow later. Until then, make sure you are using Linux or WSL.
+
+### Windows
+
+WIP
+
+### Linux
+
+Download armcc from [here](https://github.com/decompme/compilers/releases/download/compilers/armcc.zip). Extract the zip file and go into 5.04 and then bin, which should contain an `armcc.exe` file. Set the environment variable `ARMCC_504_BIN` to that `bin` folder.
+
+Download [wibo](https://github.com/decompals/wibo/releases/tag/0.6.16) and make sure the program is in your PATH.
+
+Then run `./temp_build.sh`, which will compile all of the individual source files into object files. Compiling back into a full executable is not possible yet.
+
