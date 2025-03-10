@@ -15,7 +15,9 @@ struct Variable {
         Variable* referenceType;
         char* asString;
         int asInt;
+        unsigned int asUint;
         float asFloat;
+        bool asBool;
         char asByte;
         unsigned char asUByte;
     } userData;
@@ -24,12 +26,12 @@ struct Variable {
 // Variable statuses
 #define VARIABLE_FLOAT 0
 #define VARIABLE_INT 1
-#define VARIABLE_UINT 2 /* unsure */
+#define VARIABLE_UINT 2
 #define VARIABLE_STRING 3
 #define VARIABLE_ALLOC 4
 #define VARIABLE_USER_VAR 5
 
-#define VARIABLE_BOOL 7 /* unsure */
+#define VARIABLE_BOOL 7
 #define VARIABLE_FUNC 8
 
 #define VARIABLE_QUEUED_FREE 13

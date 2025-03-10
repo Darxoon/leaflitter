@@ -1,14 +1,16 @@
+#pragma once
+
 #include <ctx.h>
 #include <variable.h>
 
-// unknown return value
-int getUnk12(Variable* var);
+UNK_TYPE getUnk12(Variable* var);
 bool isUnk12(Variable* var);
 bool isUnk9(Variable* var);
+void setBool(Variable* var, bool value);
 bool getBool(Variable* var);
 bool isBool(Variable* var);
-// unknown return value
-int func_002948f4(Variable* var);
+void setUnk6(Variable* var, UNK_TYPE value);
+UNK_TYPE getUnk6(Variable* var);
 bool isUnk6(Variable* var);
 unsigned int getUint(Variable* var);
 bool isUint(Variable* var);
