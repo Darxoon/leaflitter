@@ -7,10 +7,10 @@ CXXFLAGS=--cpp --arm --split_sections --debug --no_debug_macros --gnu \
 LD=wibo ${ARMCC_4_1_BIN}/armlink.exe
 LDFLAGS=--unresolved=_Z4stubv
 
-DEPS=$(foreach dir,include,$(wildcard $(dir)/*.h))
+DEPS := $(shell find src -name '*.h')
 
-CPPFILES := $(foreach dir,src,$(wildcard $(dir)/*.cpp))
-OFILES=$(subst src, build/obj, $(CPPFILES:.cpp=.o))
+CPPFILES := $(shell find src -name '*.cpp')
+OFILES := $(subst src, build/obj, $(CPPFILES:.cpp=.o))
 
 # Print compiler info
 $(info $(shell wibo ${ARMCC_4_1_BIN}/armcc.exe --help | head -n 1))
@@ -24,3 +24,10 @@ build/obj/%.o: src/%.cpp $(DEPS)
 build/out: $(OFILES)
 	@mkdir -p $(@D)
 	wibo ${ARMCC_4_1_BIN}/armlink.exe $(LDFLAGS) --output $@ $(OFILES) 
+
+.PHONY: clean
+
+clean:
+	@echo Cleaning...
+	@rm -rf build
+
