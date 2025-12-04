@@ -19,12 +19,21 @@ SPLIT_TXTS :=$(shell find split -name '*.txt')
 ORIG_OBJS :=$(subst split,build/orig,$(SPLIT_TXTS:.txt=.o))
 
 # Print compiler info
+ifneq (${ARMCC_4_1_BIN},)
+COMPILED_TARGETS=build/out $(ORIG_OBJS)
+
 $(info $(shell wibo ${ARMCC_4_1_BIN}/armcc.exe --help | head -n 1))
 $(info $(shell wibo ${ARMCC_4_1_BIN}/armlink.exe --help | head -n 1))
 $(info $(shell wibo ${ARMCC_4_1_BIN}/armasm.exe --help | head -n 1))
 $(info )
+else
+$(info No compiler found, only disassembling.)
+$(info Pass in the armcc 'win-x86_64' directory through the $$ARMCC_4_1_BIN environment varible)
+$(info to enable compilation.)
+$(info )
+endif
 
-all: asm/disasm.s build/out objdiff.json $(ORIG_OBJS)
+all: asm/disasm.s $(COMPILED_TARGETS) objdiff.json
 
 .PHONY: disassemble
 disassemble: asm/disasm.s
@@ -36,6 +45,7 @@ code.bin:
 	@exit 1
 
 asm/disasm.s: stickerstar.cfg code.bin
+	@mkdir -p $(@D)
 	@echo Disassembling game binary...
 	n3dsdisasm code.bin -c stickerstar.cfg > asm/disasm.s
 
