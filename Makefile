@@ -10,15 +10,20 @@ LDFLAGS=--unresolved=_Z4stubv
 ASM=wibo ${ARMCC_4_1_BIN}/armasm.exe
 ASMFLAGS=--cpu=MPCore
 
-DEPS := $(shell find src -name '*.h')
+DEPS := $(shell find include -name '*.h')
 
 CPPFILES := $(shell find src -name '*.cpp')
 OFILES := $(subst src, build/obj, $(CPPFILES:.cpp=.o))
 
+SPLIT_TXTS :=$(shell find split -name '*.txt')
+
 # Print compiler info
 $(info $(shell wibo ${ARMCC_4_1_BIN}/armcc.exe --help | head -n 1))
 $(info $(shell wibo ${ARMCC_4_1_BIN}/armlink.exe --help | head -n 1))
+$(info $(shell wibo ${ARMCC_4_1_BIN}/armasm.exe --help | head -n 1))
 $(info )
+
+all: build/out objdiff.json
 
 # Source code
 build/obj/%.o: src/%.cpp $(DEPS)
@@ -33,14 +38,20 @@ build/out: $(OFILES)
 .PRECIOUS: build/orig/%.s
 
 build/orig/%.s: split/%.txt
+	@mkdir -p $(@D)
 	python3 tools/gen_armasm_target.py $@ $<
 
 build/orig/%.o: build/orig/%.s
 	$(ASM) $(ASMFLAGS) -o $@ $<
 
+objdiff.json: $(SPLIT_TXTS)
+	python3 tools/configure_objdiff.py
+
+# Misc
 .PHONY: clean
 
 clean:
 	@echo Cleaning...
 	@rm -rf build
+	@rm -f objdiff.json
 
