@@ -7,6 +7,9 @@ CXXFLAGS=--cpp --arm --split_sections --debug --no_debug_macros --gnu \
 LD=wibo ${ARMCC_4_1_BIN}/armlink.exe
 LDFLAGS=--unresolved=_Z4stubv
 
+ASM=wibo ${ARMCC_4_1_BIN}/armasm.exe
+ASMFLAGS=--cpu=MPCore
+
 DEPS := $(shell find src -name '*.h')
 
 CPPFILES := $(shell find src -name '*.cpp')
@@ -17,13 +20,23 @@ $(info $(shell wibo ${ARMCC_4_1_BIN}/armcc.exe --help | head -n 1))
 $(info $(shell wibo ${ARMCC_4_1_BIN}/armlink.exe --help | head -n 1))
 $(info )
 
+# Source code
 build/obj/%.o: src/%.cpp $(DEPS)
 	@mkdir -p $(@D)
 	$(CXX) -c -o $@ $< $(CXXFLAGS)
 
 build/out: $(OFILES)
 	@mkdir -p $(@D)
-	wibo ${ARMCC_4_1_BIN}/armlink.exe $(LDFLAGS) --output $@ $(OFILES) 
+	$(LD) $(LDFLAGS) --output $@ $(OFILES) 
+
+# Target objects (for objdiff)
+.PRECIOUS: build/orig/%.s
+
+build/orig/%.s: split/%.txt
+	python3 tools/gen_armasm_target.py $@ $<
+
+build/orig/%.o: build/orig/%.s
+	$(ASM) $(ASMFLAGS) -o $@ $<
 
 .PHONY: clean
 

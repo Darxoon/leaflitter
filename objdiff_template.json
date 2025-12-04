@@ -1,6 +1,6 @@
 {
   "$schema": "https://raw.githubusercontent.com/encounter/objdiff/main/config.schema.json",
-  "build_target": false,
+  "build_target": true,
   "build_base": true,
   "watch_patterns": [
     "*.c",
@@ -28,18 +28,5 @@
   ],
   "ignore_patterns": [
     "build/**/*"
-  ],
-  "units": [
-    {
-      "name": "variable_numbers",
-      "target_path": "build/orig/variable_numbers.o",
-      "base_path": "build/obj/variable_numbers.o",
-      "metadata": {},
-      "symbol_mappings": {
-        "getBool(Variable*)": "_Z7getBoolP8Variable",
-        "isBool(Variable*)": "_Z6isBoolP8Variable",
-        "isUint(Variable*)": "_Z6isUintP8Variable"
-      }
-    }
   ]
 }
