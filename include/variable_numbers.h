@@ -3,19 +3,22 @@
 #include <ctx.h>
 #include <variable.h>
 
-UNK_TYPE getTable(Variable* var);
-bool isTable(Variable* var);
-bool isFunc2(Variable* var);
-void setBool(Variable* var, bool value);
-bool getBool(Variable* var);
-bool isBool(Variable* var);
-void setPtr(Variable* var, UNK_TYPE value);
-UNK_TYPE getPtr(Variable* var);
-bool isPtr(Variable* var);
-unsigned int getHex(Variable* var);
-bool isHex(Variable* var);
-float getFloat(Variable* var);
-bool isFloat(Variable* var);
-int getInt(Variable* var);
-bool isInt(Variable* var);
+namespace KSM {
+    UNK_TYPE tableValue(Variable* var);
+    bool isTableValue(Variable* var);
+    // TODO: i have no idea if this name is correct, i jsut need to get the function ordering lmao
+    bool isUserFunction(Variable* var);
+    void setBool(Variable* var, bool value);
+    bool getBooleanValue(Variable* var);
+    bool hasBooleanValue(Variable* var);
+    void setPtr(Variable* var, UNK_TYPE value);
+    UNK_TYPE ptr(Variable* var);
+    bool isPtr(Variable* var);
+    unsigned int hexVal(Variable* var);
+    bool isHexV(Variable* var);
+    float floatVl(Variable* var);
+    bool isFloat(Variable* var);
+    int getIntVl(Variable* var);
+    bool isIntVal(Variable* var);
+}
 

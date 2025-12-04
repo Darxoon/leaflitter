@@ -8,13 +8,14 @@ import re
 class Symbol:
     # e.g. isFloat(Variable*)
     signature: str
+    namespaces: list[str]
     # Name of symbol
     name: str
     # List of data types, e.g. 'Variable*'
     args: list[str]
     
     def from_symbol_sig(symbol_sig: str):
-        symbol_sig = symbol_sig.strip()
+        *namespaces, symbol_sig = symbol_sig.strip().split('::')
         
         if '(' in symbol_sig:
             name = symbol_sig[:symbol_sig.index('(')]
@@ -23,11 +24,13 @@ class Symbol:
             name = symbol_sig
             args = []
         
-        return Symbol(symbol_sig, name, args)
+        return Symbol(symbol_sig, namespaces, name, args)
     
     def mangle(self) -> str:
+        namespaces_mangled = ''.join(f"N{len(namespace)}{namespace}" for namespace in self.namespaces)
         sig_mangled = ''.join(mangle_typename_segment(name) for name in self.args)
-        return f"_Z{len(self.name)}{self.name}{sig_mangled}"
+        ident_end = 'E' if self.namespaces else ''
+        return f"_Z{namespaces_mangled}{len(self.name)}{self.name}{ident_end}{sig_mangled}"
 
 
 ARM_FUNC_START_DIRECTIVE = '	arm_func_start '
@@ -48,18 +51,27 @@ def get_referenced_symbol(symbols: dict[str, Symbol], line: str) -> str | None:
 
 def mangle_typename_segment(name: str) -> str:
     name = name.strip()
-    if name.endswith('*'):
-        prefix = 'P'
-        name = name[:-1].rstrip()
-    else:
-        prefix = ''
     
-    return prefix + f"{len(name)}{name}"
+    prefix = ""
+    
+    match name:
+        case "int":
+            name = 'i'
+        case "bool":
+            name = 'b'
+        case name if name.endswith('*'):
+            name = name[:-1].rstrip()
+            prefix = 'P' + str(len(name))
+        case _:
+            prefix = str(len(name))
+    
+    return prefix + name
 
 def get_function_asm(disasm: list[str], disasm_functions: dict[str, int], symbols: dict[str, Symbol], i: int, symbol: Symbol) -> str:
     result = ""
     
-    result += f"\tAREA |i{i:02}.{symbol.mangle()}|, CODE, READONLY\n"
+    prefix = 'i' if i is None else f"j{i:02}"
+    result += f"\tAREA |{prefix}.{symbol.mangle()}|, CODE, READONLY\n"
     result += f"\tGLOBAL {symbol.mangle()}\n\n"
     
     for i, line in enumerate(disasm[disasm_functions[symbol.name] + 1:]):
@@ -150,12 +162,24 @@ def main():
     
     result += "\n"
     
+    # Handle sorting of symbols
+    sorted_syms = [symbol for name, symbol in symbols.items() if name in disasm_functions]
+    sorted_syms.sort(key=lambda sym: sym.mangle())
+    
     # Main symbol content
-    for i, (name, symbol) in enumerate(symbols.items()):
+    is_sorted = True
+    i = 0
+    for name, symbol in symbols.items():
         if name not in disasm_functions:
             continue
         
-        result += get_function_asm(disasm, disasm_functions, symbols, i, symbol)
+        if is_sorted:
+            is_sorted = symbol == sorted_syms[i]
+        
+        index = None if is_sorted else i
+        
+        result += get_function_asm(disasm, disasm_functions, symbols, index, symbol)
+        i += 1
     
     result += "\tEND\n\n"
     
