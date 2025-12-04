@@ -11,15 +11,11 @@ def get_unit(filepath: Path) -> dict:
     with open(filepath, 'r') as f:
         symbol_sigs = f.readlines()
     
-    symbols: list[Symbol] = [Symbol.from_symbol_sig(sig) for sig in symbol_sigs if sig.strip()]
-    symbol_mappings = {symbol.signature: symbol.mangle() for symbol in symbols}
-    
     return {
         "name": filepath.stem,
         "target_path": str(TARGET_PATH_ROOT / filepath.stem) + '.o',
         "base_path": str(OBJ_PATH_ROOT / filepath.stem) + '.o',
         "metadata": {},
-        "symbol_mappings": symbol_mappings
     }
 
 def main():
