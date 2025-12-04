@@ -13,10 +13,10 @@ ASMFLAGS=--cpu=MPCore
 DEPS := $(shell find include -name '*.h')
 
 CPPFILES := $(shell find src -name '*.cpp')
-OFILES := $(subst src, build/obj, $(CPPFILES:.cpp=.o))
+OFILES := $(subst src,build/obj,$(CPPFILES:.cpp=.o))
 
 SPLIT_TXTS :=$(shell find split -name '*.txt')
-ORIG_OBJS :=$(subst split, build/orig, $(CPPFILES:.txt=.o))
+ORIG_OBJS :=$(subst split,build/orig,$(SPLIT_TXTS:.txt=.o))
 
 # Print compiler info
 $(info $(shell wibo ${ARMCC_4_1_BIN}/armcc.exe --help | head -n 1))
@@ -24,7 +24,20 @@ $(info $(shell wibo ${ARMCC_4_1_BIN}/armlink.exe --help | head -n 1))
 $(info $(shell wibo ${ARMCC_4_1_BIN}/armasm.exe --help | head -n 1))
 $(info )
 
-all: build/out objdiff.json $(ORIG_OBJS)
+all: asm/disasm.s build/out objdiff.json $(ORIG_OBJS)
+
+.PHONY: disassemble
+disassemble: asm/disasm.s
+
+# Disassembly
+code.bin:
+	@echo "Missing code.bin file in the root of this project's folder!"
+	@echo "Please follow the setup instructions first."
+	@exit 1
+
+asm/disasm.s: stickerstar.cfg code.bin
+	@echo Disassembling game binary...
+	n3dsdisasm code.bin -c stickerstar.cfg > asm/disasm.s
 
 # Source code
 build/obj/%.o: src/%.cpp $(DEPS)
@@ -50,7 +63,6 @@ objdiff.json: $(SPLIT_TXTS)
 
 # Misc
 .PHONY: clean
-
 clean:
 	@echo Cleaning...
 	@rm -rf build
