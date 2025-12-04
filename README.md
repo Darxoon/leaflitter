@@ -46,6 +46,6 @@ Then run `make`, which will compile and link all source files into `build/out`. 
 
 If you want to use the great tool [objdiff](https://github.com/encounter/objdiff), make sure you have followed the above steps first. Make will generate the `objdiff.json` file automatically, meaning that you can point objdiff to this folder (leaflitter).
 
-Note: Currently, objdiff is broken with armcc compiled binaries, so it will not work.
+Note: Make sure you have at least version 3.4.5, as earlier releases are broken for armcc binaries.
 
 Also note: By default, almost nothing will be displayed in the symbol listings. That's because you have to go into the "Diff Options" toolbar and enable "Show hidden symbols".

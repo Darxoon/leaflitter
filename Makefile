@@ -1,5 +1,5 @@
 CXX=wibo ${ARMCC_4_1_BIN}/armcc.exe
-CXXFLAGS=--cpp --arm --split_sections --debug --no_debug_macros --gnu \
+CXXFLAGS=--cpu=MPCore --cpp --arm --split_sections --debug --no_debug_macros --gnu \
 		--debug_info=line_inlining_extensions -O3 -Otime --data_reorder --signed_chars \
 		--multibyte_chars --remove_unneeded_entities --force_new_nothrow --remarks --no_rtti \
 		-Iinclude
@@ -37,7 +37,7 @@ build/out: $(OFILES)
 # Target objects (for objdiff)
 .PRECIOUS: build/orig/%.s
 
-build/orig/%.s: split/%.txt
+build/orig/%.s: split/%.txt asm/disasm.s
 	@mkdir -p $(@D)
 	python3 tools/gen_armasm_target.py $@ $<
 

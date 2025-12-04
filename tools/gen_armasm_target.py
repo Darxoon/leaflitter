@@ -43,7 +43,7 @@ def index_disasm(disasm: list[str]) -> dict[str, int]:
     return result
 
 def get_referenced_symbol(symbols: dict[str, Symbol], line: str) -> str | None:
-    [symbol] = re.findall("^\\t(?:bl|b) (\\w+)$", line.rstrip()) or [None]
+    [symbol] = re.findall("^\\t(?:bl|b) ([\\w\\(\\)\\*,\\s]+)$", line.rstrip()) or [None]
     return symbol
 
 def mangle_typename_segment(name: str) -> str:
@@ -82,6 +82,8 @@ def get_function_asm(disasm: list[str], disasm_functions: dict[str, int], symbol
             
             if external_symbol:
                 line = line.replace(external_symbol_name, f"|{external_symbol.signature}|")
+            elif '(' in external_symbol_name or ')' in external_symbol_name or '*' in external_symbol_name:
+                line = line.replace(external_symbol_name, f"|{external_symbol_name}|")
         
         # Convert direct byte insert directives into correct syntax
         line = line.replace('.byte', 'dcb')
@@ -139,7 +141,7 @@ def main():
                 extern_symbols.add(extern_symbol)
     
     for extern_symbol in extern_symbols:
-        result += f"\tEXTERN {extern_symbol}\n"
+        result += f"\tEXTERN |{extern_symbol}|\n"
     
     result += "\n"
     

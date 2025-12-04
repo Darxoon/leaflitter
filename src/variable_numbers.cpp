@@ -47,7 +47,7 @@ int getUnk12(Variable* var) {
     return var->userData.asInt;
 }
 
-bool isUnk12(Variable* var) {
+bool __attribute__((noinline)) isUnk12(Variable* var) {
     // make sure var is not a UserVar
     while (var->status == VARIABLE_USER_VAR) {
         if (getReferenceType(var) == nullptr) {
@@ -60,7 +60,7 @@ bool isUnk12(Variable* var) {
     return var->status == VARIABLE_UNK_12;
 }
 
-bool isUnk9(Variable* var) {
+bool __attribute__((noinline)) isUnk9(Variable* var) {
     // make sure var is not a UserVar
     while (var->status == VARIABLE_USER_VAR) {
         if (getReferenceType(var) == nullptr) {
@@ -123,7 +123,7 @@ bool getBool(Variable* var) {
     return var->userData.asBool;
 }
 
-bool isBool(Variable* var) {
+bool __attribute__((noinline)) isBool(Variable* var) {
     // make sure var is not a UserVar
     while (var->status == VARIABLE_USER_VAR) {
         if (getReferenceType(var) == nullptr) {
@@ -185,7 +185,7 @@ UNK_TYPE getUnk6(Variable* var) {
     return var->userData.asInt;
 }
 
-bool isUnk6(Variable* var) {
+bool __attribute__((noinline)) isUnk6(Variable* var) {
     // make sure var is not a UserVar
     while (var->status == VARIABLE_USER_VAR) {
         if (getReferenceType(var) == nullptr) {
@@ -246,7 +246,7 @@ unsigned int getUint(Variable* var) {
     return var->userData.asUint;
 }
 
-bool isUint(Variable* var) {
+bool __attribute__((noinline)) isUint(Variable* var) {
     // make sure var is not a UserVar
     while (var->status == VARIABLE_USER_VAR) {
         if (getReferenceType(var) == nullptr) {
@@ -301,7 +301,7 @@ float getFloat(Variable* var) {
     return var->userData.asFloat;
 }
 
-bool isFloat(Variable* var) {
+bool __attribute__((noinline)) isFloat(Variable* var) {
     // make sure var is not a UserVar
     while (var->status == VARIABLE_USER_VAR) {
         if (getReferenceType(var) == nullptr) {
@@ -376,7 +376,7 @@ int getInt(Variable* var) {
     return var->userData.asInt;
 }
 
-bool isInt(Variable* var) {
+bool __attribute__((noinline)) isInt(Variable* var) {
     // make sure var is not a UserVar
     if (var->status == VARIABLE_USER_VAR) {
         if (getReferenceType(var) == nullptr) {
