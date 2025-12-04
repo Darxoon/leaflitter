@@ -70,7 +70,7 @@ bool __attribute__((noinline)) KSM::isUserFunction(Variable* var) {
 }
 
 // not matching: unimplemented
-void KSM::setBool(Variable* var, bool value) {
+void KSM::setBooleanValu(Variable* var, bool value) {
     
 }
 
@@ -97,11 +97,11 @@ bool KSM::getBooleanValue(Variable* var) {
         return var->userData.asBool;
     }
     
-    if (isIntVal(var)) {
+    if (hasIntVal(var)) {
         return var->userData.asInt;
     }
     
-    if (isFloat(var)) {
+    if (hasFloat(var)) {
         return var->userData.asFloat;
     }
     
@@ -133,11 +133,11 @@ bool __attribute__((noinline)) KSM::hasBooleanValue(Variable* var) {
 }
 
 // not matching: unimplemented
-void KSM::setPtr(Variable* var, UNK_TYPE value) {
+void KSM::stPtr(Variable* var, UNK_TYPE value) {
     
 }
 
-UNK_TYPE KSM::ptr(Variable* var) {
+UNK_TYPE KSM::getPtr(Variable* var) {
     if (var->status == VARIABLE_NOINIT) {
         /* A variable is used without being initialized. */
         logScriptError(0, "変数が未初期化で使用されています。\n", -1);
@@ -153,7 +153,7 @@ UNK_TYPE KSM::ptr(Variable* var) {
             logScriptError(0, "参照型変数に値が入っていません。\n", -1);
         }
 
-        return ptr(getReferenceType(var)); // wow this has tail call optimization
+        return getPtr(getReferenceType(var)); // wow this has tail call optimization
     }
     
     if (isAllocVar(var)) {
@@ -165,13 +165,13 @@ UNK_TYPE KSM::ptr(Variable* var) {
             return var->userData.asInt;
         case VARIABLE_REF:
             if (getReferenceType(var) != nullptr) {
-                if (isPtr(getReferenceType(var))) {
+                if (hasPtr(getReferenceType(var))) {
                     return var->userData.asInt;
                 }
             }
     }
     
-    if (isFunc(var) || hasBooleanValue(var) || isTableValue(var) || isIntVal(var) || isHexV(var)) {
+    if (isFunc(var) || hasBooleanValue(var) || isTableValue(var) || hasIntVal(var) || isHexV(var)) {
         return var->userData.asInt;
     }
     
@@ -181,14 +181,14 @@ UNK_TYPE KSM::ptr(Variable* var) {
     return var->userData.asInt;
 }
 
-bool __attribute__((noinline)) KSM::isPtr(Variable* var) {
+bool __attribute__((noinline)) KSM::hasPtr(Variable* var) {
     // make sure var is not a reference
     while (var->status == VARIABLE_REF) {
         if (getReferenceType(var) == nullptr) {
             return false;
         }
 
-        return isPtr(getReferenceType(var)); // wow this has tail call optimization
+        return hasPtr(getReferenceType(var)); // wow this has tail call optimization
     }
 
     return var->status == VARIABLE_PTR;
@@ -221,11 +221,11 @@ unsigned int KSM::hexVal(Variable* var) {
         return var->userData.asUint;
     }
     
-    if (isFloat(var)) {
+    if (hasFloat(var)) {
         return var->userData.asFloat;
     }
     
-    if (isIntVal(var)) {
+    if (hasIntVal(var)) {
         return var->userData.asInt;
     }
     
@@ -256,7 +256,7 @@ bool __attribute__((noinline)) KSM::isHexV(Variable* var) {
 }
 
 // not matching: compiler version
-float KSM::floatVl(Variable* var) {
+float KSM::floatVal(Variable* var) {
     if (var->status == VARIABLE_NOINIT) {
         /* A variable is used without being initialized. */
         logScriptError(0, "変数が未初期化で使用されています。\n", -1);
@@ -272,18 +272,18 @@ float KSM::floatVl(Variable* var) {
             logScriptError(0, "参照型変数に値が入っていません。\n", -1);
         }
 
-        return floatVl(getReferenceType(var)); // wow this has tail call optimization
+        return floatVal(getReferenceType(var)); // wow this has tail call optimization
     }
     
     if (isSavedVar(var)) {
         return func_0029e33c(var);
     }
     
-    if (isFloat(var)) {
+    if (hasFloat(var)) {
         return var->userData.asFloat;
     }
     
-    if (isIntVal(var)) {
+    if (hasIntVal(var)) {
         return var->userData.asInt;
     }
 
@@ -297,20 +297,20 @@ float KSM::floatVl(Variable* var) {
     return var->userData.asFloat;
 }
 
-bool __attribute__((noinline)) KSM::isFloat(Variable* var) {
+bool __attribute__((noinline)) KSM::hasFloat(Variable* var) {
     // make sure var is not a reference
     while (var->status == VARIABLE_REF) {
         if (getReferenceType(var) == nullptr) {
             return false;
         }
 
-        return isFloat(getReferenceType(var)); // wow this has tail call optimization
+        return hasFloat(getReferenceType(var)); // wow this has tail call optimization
     }
 
     return var->status == VARIABLE_FLOAT;
 }
 
-int KSM::getIntVl(Variable* var) {
+int KSM::getIntVal(Variable* var) {
     if (var->status == VARIABLE_NOINIT) {
         /* A variable is used without being initialized. */
         logScriptError(0, "変数が未初期化で使用されています。\n", -1);
@@ -326,18 +326,18 @@ int KSM::getIntVl(Variable* var) {
             logScriptError(0, "参照型変数に値が入っていません。\n", -1);
         }
 
-        return getIntVl(getReferenceType(var)); // wow this has tail call optimization
+        return getIntVal(getReferenceType(var)); // wow this has tail call optimization
     }
     
     if (isSavedVar(var)) {
         return func_0029e33c(var);
     }
 
-    if (isIntVal(var)) {
+    if (hasIntVal(var)) {
         return var->userData.asInt;
     }
     
-    if (isFloat(var)) {
+    if (hasFloat(var)) {
         return (int)var->userData.asFloat;
     }
     
@@ -350,7 +350,7 @@ int KSM::getIntVl(Variable* var) {
             return var->userData.asInt;
         case VARIABLE_REF:
             if (getReferenceType(var) != nullptr) {
-                if (isPtr(getReferenceType(var))) {
+                if (hasPtr(getReferenceType(var))) {
                     return var->userData.asInt;
                 }
             }
@@ -372,14 +372,14 @@ int KSM::getIntVl(Variable* var) {
     return var->userData.asInt;
 }
 
-bool __attribute__((noinline)) KSM::isIntVal(Variable* var) {
+bool __attribute__((noinline)) KSM::hasIntVal(Variable* var) {
     // make sure var is not a reference
     if (var->status == VARIABLE_REF) {
         if (getReferenceType(var) == nullptr) {
             return false;
         }
 
-        return isIntVal(getReferenceType(var));
+        return hasIntVal(getReferenceType(var));
     }
 
     return var->status == VARIABLE_INT;
