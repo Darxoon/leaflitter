@@ -56,10 +56,10 @@ def mangle_typename_segment(name: str) -> str:
     
     return prefix + f"{len(name)}{name}"
 
-def get_function_asm(disasm: list[str], disasm_functions: dict[str, int], symbols: dict[str, Symbol], symbol: Symbol) -> str:
+def get_function_asm(disasm: list[str], disasm_functions: dict[str, int], symbols: dict[str, Symbol], i: int, symbol: Symbol) -> str:
     result = ""
     
-    result += f"\tAREA |i.{symbol.mangle()}|, CODE, READONLY\n"
+    result += f"\tAREA |i{i:02}.{symbol.mangle()}|, CODE, READONLY\n"
     result += f"\tGLOBAL |{symbol.signature}|\n\n"
     
     for i, line in enumerate(disasm[disasm_functions[symbol.name] + 1:]):
@@ -146,11 +146,11 @@ def main():
     result += "\n"
     
     # Main symbol content
-    for name, symbol in symbols.items():
+    for i, (name, symbol) in enumerate(symbols.items()):
         if name not in disasm_functions:
             continue
         
-        result += get_function_asm(disasm, disasm_functions, symbols, symbol)
+        result += get_function_asm(disasm, disasm_functions, symbols, i, symbol)
     
     result += "\tEND\n\n"
     
