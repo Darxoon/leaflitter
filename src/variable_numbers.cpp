@@ -9,17 +9,13 @@ bool isFunc(Variable* variable);
 bool isAllocVar(Variable* variable);
 UNK_TYPE func_0029e9b4(Variable* variable);
 
-#define VARIABLE_UNK_6 6
-#define VARIABLE_UNK_9 9
-#define VARIABLE_UNK_12 12
-
 // for some reason I need to put them here for getUnk12 specifically
 const char ERROR_MSG_1[] = "変数が未初期化で使用されています。\n";
 const char ERROR_MSG_2[] = "変数の型変換できません！\n";
 const char ERROR_MSG_3[] = "参照型変数に値が入っていません。\n";
 
-int getUnk12(Variable* var) {
-    if (var->status == VARIABLE_UNINITIALIZED) {
+int getTable(Variable* var) {
+    if (var->status == VARIABLE_NOINIT) {
         /* A variable is used without being initialized. */
         logScriptError(0, ERROR_MSG_1, -1);
         /* Cannot convert variable type! */
@@ -27,17 +23,17 @@ int getUnk12(Variable* var) {
         return var->userData.asInt;
     }
 
-    // make sure var is not a UserVar
-    if (var->status == VARIABLE_USER_VAR) {
+    // make sure var is not a reference
+    if (var->status == VARIABLE_REF) {
         if (getReferenceType(var) == nullptr) {
             /* The reference variable does not have a value. */
             logScriptError(0, ERROR_MSG_3, -1);
         }
 
-        return getUnk12(getReferenceType(var)); // wow this has tail call optimization
+        return getTable(getReferenceType(var)); // wow this has tail call optimization
     }
     
-    if (isUnk12(var)) {
+    if (isTable(var)) {
         return var->userData.asInt;
     }
     
@@ -47,30 +43,30 @@ int getUnk12(Variable* var) {
     return var->userData.asInt;
 }
 
-bool __attribute__((noinline)) isUnk12(Variable* var) {
-    // make sure var is not a UserVar
-    while (var->status == VARIABLE_USER_VAR) {
+bool __attribute__((noinline)) isTable(Variable* var) {
+    // make sure var is not a reference
+    while (var->status == VARIABLE_REF) {
         if (getReferenceType(var) == nullptr) {
             return false;
         }
 
-        return isUnk12(getReferenceType(var)); // wow this has tail call optimization
+        return isTable(getReferenceType(var)); // wow this has tail call optimization
     }
 
-    return var->status == VARIABLE_UNK_12;
+    return var->status == VARIABLE_TABLE;
 }
 
-bool __attribute__((noinline)) isUnk9(Variable* var) {
-    // make sure var is not a UserVar
-    while (var->status == VARIABLE_USER_VAR) {
+bool __attribute__((noinline)) isFunc2(Variable* var) {
+    // make sure var is not a reference
+    while (var->status == VARIABLE_REF) {
         if (getReferenceType(var) == nullptr) {
             return false;
         }
 
-        return isUnk9(getReferenceType(var)); // wow this has tail call optimization
+        return isFunc2(getReferenceType(var)); // wow this has tail call optimization
     }
 
-    return var->status == VARIABLE_UNK_9;
+    return var->status == VARIABLE_FUNC2;
 }
 
 // not matching: unimplemented
@@ -79,7 +75,7 @@ void setBool(Variable* var, bool value) {
 }
 
 bool getBool(Variable* var) {
-    if (var->status == VARIABLE_UNINITIALIZED) {
+    if (var->status == VARIABLE_NOINIT) {
         /* A variable is used without being initialized. */
         logScriptError(0, "変数が未初期化で使用されています。\n", -1);
         /* Cannot convert variable type! */
@@ -87,8 +83,8 @@ bool getBool(Variable* var) {
         return var->userData.asBool;
     }
 
-    // make sure var is not a UserVar
-    if (var->status == VARIABLE_USER_VAR) {
+    // make sure var is not a reference
+    if (var->status == VARIABLE_REF) {
         if (getReferenceType(var) == nullptr) {
             /* The reference variable does not have a value. */
             logScriptError(0, "参照型変数に値が入っていません。\n", -1);
@@ -109,7 +105,7 @@ bool getBool(Variable* var) {
         return var->userData.asFloat;
     }
     
-    if (isUint(var)) {
+    if (isHex(var)) {
         return var->userData.asInt;
     }
     
@@ -124,8 +120,8 @@ bool getBool(Variable* var) {
 }
 
 bool __attribute__((noinline)) isBool(Variable* var) {
-    // make sure var is not a UserVar
-    while (var->status == VARIABLE_USER_VAR) {
+    // make sure var is not a reference
+    while (var->status == VARIABLE_REF) {
         if (getReferenceType(var) == nullptr) {
             return false;
         }
@@ -137,12 +133,12 @@ bool __attribute__((noinline)) isBool(Variable* var) {
 }
 
 // not matching: unimplemented
-void setUnk6(Variable* var, UNK_TYPE value) {
+void setPtr(Variable* var, UNK_TYPE value) {
     
 }
 
-UNK_TYPE getUnk6(Variable* var) {
-    if (var->status == VARIABLE_UNINITIALIZED) {
+UNK_TYPE getPtr(Variable* var) {
+    if (var->status == VARIABLE_NOINIT) {
         /* A variable is used without being initialized. */
         logScriptError(0, "変数が未初期化で使用されています。\n", -1);
         /* Cannot convert variable type! */
@@ -150,14 +146,14 @@ UNK_TYPE getUnk6(Variable* var) {
         return var->userData.asInt;
     }
 
-    // make sure var is not a UserVar
-    if (var->status == VARIABLE_USER_VAR) {
+    // make sure var is not a reference
+    if (var->status == VARIABLE_REF) {
         if (getReferenceType(var) == nullptr) {
             /* The reference variable does not have a value. */
             logScriptError(0, "参照型変数に値が入っていません。\n", -1);
         }
 
-        return getUnk6(getReferenceType(var)); // wow this has tail call optimization
+        return getPtr(getReferenceType(var)); // wow this has tail call optimization
     }
     
     if (isAllocVar(var)) {
@@ -165,17 +161,17 @@ UNK_TYPE getUnk6(Variable* var) {
     }
 
     switch (var->status) {
-        case VARIABLE_UNK_6:
+        case VARIABLE_PTR:
             return var->userData.asInt;
-        case VARIABLE_USER_VAR:
+        case VARIABLE_REF:
             if (getReferenceType(var) != nullptr) {
-                if (isUnk6(getReferenceType(var))) {
+                if (isPtr(getReferenceType(var))) {
                     return var->userData.asInt;
                 }
             }
     }
     
-    if (isFunc(var) || isBool(var) || isUnk12(var) || isInt(var) || isUint(var)) {
+    if (isFunc(var) || isBool(var) || isTable(var) || isInt(var) || isHex(var)) {
         return var->userData.asInt;
     }
     
@@ -185,21 +181,21 @@ UNK_TYPE getUnk6(Variable* var) {
     return var->userData.asInt;
 }
 
-bool __attribute__((noinline)) isUnk6(Variable* var) {
-    // make sure var is not a UserVar
-    while (var->status == VARIABLE_USER_VAR) {
+bool __attribute__((noinline)) isPtr(Variable* var) {
+    // make sure var is not a reference
+    while (var->status == VARIABLE_REF) {
         if (getReferenceType(var) == nullptr) {
             return false;
         }
 
-        return isUnk6(getReferenceType(var)); // wow this has tail call optimization
+        return isPtr(getReferenceType(var)); // wow this has tail call optimization
     }
 
-    return var->status == VARIABLE_UNK_6;
+    return var->status == VARIABLE_PTR;
 }
 
-unsigned int getUint(Variable* var) {
-    if (var->status == VARIABLE_UNINITIALIZED) {
+unsigned int getHex(Variable* var) {
+    if (var->status == VARIABLE_NOINIT) {
         /* A variable is used without being initialized. */
         logScriptError(0, "変数が未初期化で使用されています。\n", -1);
         /* Cannot convert variable type! */
@@ -207,21 +203,21 @@ unsigned int getUint(Variable* var) {
         return var->userData.asUint;
     }
 
-    // make sure var is not a UserVar
-    if (var->status == VARIABLE_USER_VAR) {
+    // make sure var is not a reference
+    if (var->status == VARIABLE_REF) {
         if (getReferenceType(var) == nullptr) {
             /* The reference variable does not have a value. */
             logScriptError(0, "参照型変数に値が入っていません。\n", -1);
         }
 
-        return getUint(getReferenceType(var)); // wow this has tail call optimization
+        return getHex(getReferenceType(var)); // wow this has tail call optimization
     }
     
     if (isSavedVar(var)) {
         return func_0029e33c(var);
     }
     
-    if (isUint(var)) {
+    if (isHex(var)) {
         return var->userData.asUint;
     }
     
@@ -237,7 +233,7 @@ unsigned int getUint(Variable* var) {
         return var->userData.asByte ? 1 : 0;
     }
 
-    if (!func_002a9a74(var) && !isFunc(var) && !isUnk9(var) && !isUnk12(var)) {
+    if (!func_002a9a74(var) && !isFunc(var) && !isFunc2(var) && !isTable(var)) {
         /* Cannot convert variable type! */
         logScriptError(0, "変数の型変換できません！\n", -1);
         return var->userData.asInt;
@@ -246,22 +242,22 @@ unsigned int getUint(Variable* var) {
     return var->userData.asUint;
 }
 
-bool __attribute__((noinline)) isUint(Variable* var) {
-    // make sure var is not a UserVar
-    while (var->status == VARIABLE_USER_VAR) {
+bool __attribute__((noinline)) isHex(Variable* var) {
+    // make sure var is not a reference
+    while (var->status == VARIABLE_REF) {
         if (getReferenceType(var) == nullptr) {
             return false;
         }
 
-        return isUint(getReferenceType(var)); // wow this has tail call optimization
+        return isHex(getReferenceType(var)); // wow this has tail call optimization
     }
 
-    return var->status == VARIABLE_UINT;
+    return var->status == VARIABLE_HEX;
 }
 
 // not matching: compiler version
 float getFloat(Variable* var) {
-    if (var->status == VARIABLE_UNINITIALIZED) {
+    if (var->status == VARIABLE_NOINIT) {
         /* A variable is used without being initialized. */
         logScriptError(0, "変数が未初期化で使用されています。\n", -1);
         /* Cannot convert variable type! */
@@ -269,8 +265,8 @@ float getFloat(Variable* var) {
         return var->userData.asFloat;
     }
 
-    // make sure var is not a UserVar
-    while (var->status == VARIABLE_USER_VAR) {
+    // make sure var is not a reference
+    while (var->status == VARIABLE_REF) {
         if (getReferenceType(var) == nullptr) {
             /* The reference variable does not have a value. */
             logScriptError(0, "参照型変数に値が入っていません。\n", -1);
@@ -302,8 +298,8 @@ float getFloat(Variable* var) {
 }
 
 bool __attribute__((noinline)) isFloat(Variable* var) {
-    // make sure var is not a UserVar
-    while (var->status == VARIABLE_USER_VAR) {
+    // make sure var is not a reference
+    while (var->status == VARIABLE_REF) {
         if (getReferenceType(var) == nullptr) {
             return false;
         }
@@ -315,7 +311,7 @@ bool __attribute__((noinline)) isFloat(Variable* var) {
 }
 
 int getInt(Variable* var) {
-    if (var->status == VARIABLE_UNINITIALIZED) {
+    if (var->status == VARIABLE_NOINIT) {
         /* A variable is used without being initialized. */
         logScriptError(0, "変数が未初期化で使用されています。\n", -1);
         /* Cannot convert variable type! */
@@ -323,8 +319,8 @@ int getInt(Variable* var) {
         return var->userData.asInt;
     }
 
-    // make sure var is not a UserVar
-    if (var->status == VARIABLE_USER_VAR) {
+    // make sure var is not a reference
+    if (var->status == VARIABLE_REF) {
         if (getReferenceType(var) == nullptr) {
             /* The reference variable does not have a value. */
             logScriptError(0, "参照型変数に値が入っていません。\n", -1);
@@ -345,16 +341,16 @@ int getInt(Variable* var) {
         return (int)var->userData.asFloat;
     }
     
-    if (isUint(var)) {
+    if (isHex(var)) {
         return var->userData.asInt;
     }
 
     switch (var->status) {
-        case VARIABLE_UNK_6:
+        case VARIABLE_PTR:
             return var->userData.asInt;
-        case VARIABLE_USER_VAR:
+        case VARIABLE_REF:
             if (getReferenceType(var) != nullptr) {
-                if (isUnk6(getReferenceType(var))) {
+                if (isPtr(getReferenceType(var))) {
                     return var->userData.asInt;
                 }
             }
@@ -367,7 +363,7 @@ int getInt(Variable* var) {
         return result;
     }
     
-    if (!func_002a9a74(var) && !isFunc(var) && !isUnk9(var) && !isUnk12(var)) {
+    if (!func_002a9a74(var) && !isFunc(var) && !isFunc2(var) && !isTable(var)) {
         /* Cannot convert variable type! */
         logScriptError(0, "変数の型変換できません！\n", -1);
         return var->userData.asInt;
@@ -377,8 +373,8 @@ int getInt(Variable* var) {
 }
 
 bool __attribute__((noinline)) isInt(Variable* var) {
-    // make sure var is not a UserVar
-    if (var->status == VARIABLE_USER_VAR) {
+    // make sure var is not a reference
+    if (var->status == VARIABLE_REF) {
         if (getReferenceType(var) == nullptr) {
             return false;
         }

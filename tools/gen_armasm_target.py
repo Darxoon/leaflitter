@@ -60,7 +60,7 @@ def get_function_asm(disasm: list[str], disasm_functions: dict[str, int], symbol
     result = ""
     
     result += f"\tAREA |i{i:02}.{symbol.mangle()}|, CODE, READONLY\n"
-    result += f"\tGLOBAL |{symbol.signature}|\n\n"
+    result += f"\tGLOBAL {symbol.mangle()}\n\n"
     
     for i, line in enumerate(disasm[disasm_functions[symbol.name] + 1:]):
         if line.startswith(ARM_FUNC_START_DIRECTIVE):
@@ -69,7 +69,7 @@ def get_function_asm(disasm: list[str], disasm_functions: dict[str, int], symbol
         # Check for label and convert them into armasm syntax
         if ':' in line:
             colon_idx = line.index(':')
-            result += line[:colon_idx].replace(symbol.name, f"|{symbol.signature}|") + '\n'
+            result += line[:colon_idx].replace(symbol.name, symbol.mangle()) + '\n'
             continue
         
         # Remove @ and everything after it
@@ -81,7 +81,7 @@ def get_function_asm(disasm: list[str], disasm_functions: dict[str, int], symbol
             external_symbol = symbols.get(external_symbol_name, None)
             
             if external_symbol:
-                line = line.replace(external_symbol_name, f"|{external_symbol.signature}|")
+                line = line.replace(external_symbol_name, external_symbol.mangle())
             elif '(' in external_symbol_name or ')' in external_symbol_name or '*' in external_symbol_name:
                 line = line.replace(external_symbol_name, f"|{external_symbol_name}|")
         
@@ -137,7 +137,12 @@ def main():
                 break
             
             extern_symbol = get_referenced_symbol(symbols, line.rstrip())
-            if symbols.get(extern_symbol, None) is None and (extern_symbol is None or not extern_symbol.startswith('_')):
+            is_really_extern = (
+                extern_symbol is not None
+                and symbols.get(extern_symbol, None) is None
+                and (extern_symbol is None or extern_symbol.startswith('_Z') or not extern_symbol.startswith('_'))
+            )
+            if is_really_extern:
                 extern_symbols.add(extern_symbol)
     
     for extern_symbol in extern_symbols:

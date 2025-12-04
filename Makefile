@@ -16,6 +16,7 @@ CPPFILES := $(shell find src -name '*.cpp')
 OFILES := $(subst src, build/obj, $(CPPFILES:.cpp=.o))
 
 SPLIT_TXTS :=$(shell find split -name '*.txt')
+ORIG_OBJS :=$(subst split, build/orig, $(CPPFILES:.txt=.o))
 
 # Print compiler info
 $(info $(shell wibo ${ARMCC_4_1_BIN}/armcc.exe --help | head -n 1))
@@ -23,7 +24,7 @@ $(info $(shell wibo ${ARMCC_4_1_BIN}/armlink.exe --help | head -n 1))
 $(info $(shell wibo ${ARMCC_4_1_BIN}/armasm.exe --help | head -n 1))
 $(info )
 
-all: build/out objdiff.json
+all: build/out objdiff.json $(ORIG_OBJS)
 
 # Source code
 build/obj/%.o: src/%.cpp $(DEPS)
