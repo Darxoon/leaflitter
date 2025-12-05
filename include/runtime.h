@@ -1,10 +1,39 @@
+#pragma once
+
 #include "ctx.h"
 
 #include "variable.h"
 
-struct FuncStackFrame {
+struct ScriptBinary {
+    int filename;
+    int field_0x4;
     // TODO: opaque struct pointer
-    struct ksm_file* file;
+    struct Function* defined_functions;
+    struct Variable* defined_variables;
+    struct Variable* defined_constants;
+    struct Variable* field_0x14;
+    struct Table* registered_tables;
+    struct FunctionImport* defined_function_imports;
+    u32 field_0x20;
+    Variable* maybe_var;
+    int* code_section;
+    int code_section_length;
+    int opposite_counter;
+    ScriptBinary* next;
+    struct Script* scripts[8];
+    int current_script;
+    int field_0x5c[4];
+    char field_0x6c[3];
+    char field_0x6f;
+    char buf_field_0x36;
+    char field_0x71;
+    char field_0x72;
+    char field_0x73;
+};
+
+struct FuncStackFrame {
+    ScriptBinary* file;
+    // TODO: opaque struct pointer
     struct Function* field_0x4;
     Variable* field_0x8[3];
     u32* code;
@@ -30,12 +59,12 @@ struct Runtime {
     char field_0x6;
     char field_0x7;
     int field_0x8[0x10];
-    // TODO: opaque struct pointer
-    struct ksm_file* ksm_file;
+    ScriptBinary* ksm_file;
     int field_0x4c;
-    struct ksm_file* ksm_file2;
+    ScriptBinary* ksm_file2;
+    // TODO: opaque struct pointer
     struct Function* Func;
-    struct ksm_file* fallback_ksm_file;
+    ScriptBinary* fallback_ksm_file;
     Variable* variable1;
     Variable* variable2;
     int field_0x64[2];
