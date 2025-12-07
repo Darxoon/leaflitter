@@ -1,0 +1,2 @@
+extern "C" __ctr_start
+0x1027cc:extern "C" __cpp_initialize__aeabi_

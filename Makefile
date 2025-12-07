@@ -22,8 +22,6 @@ ORIG_OBJS :=$(subst split,build/orig,$(SPLIT_TXTS:.txt=.o))
 ifneq (${ARMCC_4_1_BIN},)
 COMPILED_TARGETS=build/out $(ORIG_OBJS)
 
-$(info $(OS))
-
 $(info $(shell $(CXX) --help | head -n 1))
 $(info $(shell $(LD) --help | head -n 1))
 $(info $(shell $(ASM) --help | head -n 1))
