@@ -3,9 +3,12 @@
 struct Variable {
     char* name;
     int handle;
-    struct {
-        int status : 24; /* should really be called data type or something like this */
-        int field_0xb : 8;
+    union {
+        int status;
+        struct {
+            int dataType : 24;
+            int field_0xb : 8;
+        };
     };
     int field_0xc; /* might be a Variable* */
     Variable* next;
@@ -23,7 +26,7 @@ struct Variable {
     } userData;
 };
 
-// Variable statuses
+// Variable data types
 #define VARIABLE_FLOAT 0
 #define VARIABLE_INT 1
 #define VARIABLE_HEX 2
@@ -41,3 +44,7 @@ struct Variable {
 #define VARIABLE_NOINIT 14
 
 #define VARIABLE_USER_VAR 20
+
+namespace KSM {
+    void uninitVariable(Variable* var);
+}
