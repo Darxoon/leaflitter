@@ -22,9 +22,11 @@ ORIG_OBJS :=$(subst split,build/orig,$(SPLIT_TXTS:.txt=.o))
 ifneq (${ARMCC_4_1_BIN},)
 COMPILED_TARGETS=build/out $(ORIG_OBJS)
 
-$(info $(shell wibo ${ARMCC_4_1_BIN}/armcc.exe --help | head -n 1))
-$(info $(shell wibo ${ARMCC_4_1_BIN}/armlink.exe --help | head -n 1))
-$(info $(shell wibo ${ARMCC_4_1_BIN}/armasm.exe --help | head -n 1))
+$(info $(OS))
+
+$(info $(shell $(CXX) --help | head -n 1))
+$(info $(shell $(LD) --help | head -n 1))
+$(info $(shell $(ASM) --help | head -n 1))
 $(info )
 else
 $(info No compiler found, only disassembling.)

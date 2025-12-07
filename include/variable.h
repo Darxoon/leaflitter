@@ -45,6 +45,14 @@ struct Variable {
 
 #define VARIABLE_USER_VAR 20
 
+// Functions without a translation unit yet
+namespace KSM {
+    bool isStringVar(Variable* var);
+    bool isEmptyStringVar(Variable* var);
+    bool isStringMeVar(Variable* var);
+}
+
+// variable.cpp
 namespace KSM {
     void uninitVariable(Variable* var);
 }
