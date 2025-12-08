@@ -102,16 +102,23 @@ def mangle_typename_segment(name: str) -> str:
     
     prefix = ""
     
+    if name.endswith('*'):
+        name = name[:-1].rstrip()
+        prefix += 'P'
+    
+    if name.startswith('const'):
+        name = name[5:].lstrip()
+        prefix += 'K'
+        
     match name:
         case "int":
             name = 'i'
         case "bool":
             name = 'b'
-        case name if name.endswith('*'):
-            name = name[:-1].rstrip()
-            prefix = 'P' + str(len(name))
+        case "char":
+            name = 'c'
         case _:
-            prefix = str(len(name))
+            prefix += str(len(name))
     
     return prefix + name
 
