@@ -74,20 +74,22 @@ class Ctx:
     symbol_offsets: dict[int, Symbol]
 
 
-ARM_FUNC_START_DIRECTIVE = '	arm_func_start '
-THUMB_FUNC_START_DIRECTIVE = '	thumb_func_start '
+FUNC_START_DIRECTIVES = {
+    '	arm_func_start ': ArchType.ARM,
+    '	thumb_func_start ': ArchType.Thumb,
+    '	non_word_aligned_thumb_func_start ': ArchType.Thumb,
+}
 
 def index_disasm(disasm: list[str]) -> (dict[str, int], dict[str, ArchType]):
     indices = {}
     arch_types = {}
     
     for i, line in enumerate(disasm):
-        if line.startswith(ARM_FUNC_START_DIRECTIVE):
-            indices[line[len(ARM_FUNC_START_DIRECTIVE):].rstrip()] = i
-            arch_types[line[len(ARM_FUNC_START_DIRECTIVE):].rstrip()] = ArchType.ARM
-        elif line.startswith(THUMB_FUNC_START_DIRECTIVE):
-            indices[line[len(THUMB_FUNC_START_DIRECTIVE):].rstrip()] = i
-            arch_types[line[len(THUMB_FUNC_START_DIRECTIVE):].rstrip()] = ArchType.Thumb
+        for directive, arch_type in FUNC_START_DIRECTIVES.items():
+            if line.startswith(directive):
+                func_name = line[len(directive):].rstrip()
+                indices[func_name] = i
+                arch_types[func_name] = arch_type
     
     return indices, arch_types
 
@@ -127,7 +129,7 @@ def get_function_asm(ctx: Ctx, i: int, symbol: Symbol) -> str:
             result += f"\tTHUMB\n\n"
     
     for i, line in enumerate(ctx.disasm[ctx.disasm_functions[symbol.name] + 1:]):
-        if line.startswith(ARM_FUNC_START_DIRECTIVE) or line.startswith(THUMB_FUNC_START_DIRECTIVE):
+        if any(line.startswith(directive) for directive in FUNC_START_DIRECTIVES):
             break
         
         # Check for label and convert them into armasm syntax
@@ -216,7 +218,7 @@ def main():
             continue
         
         for line in disasm[disasm_functions[name] + 1:]:
-            if line.startswith(ARM_FUNC_START_DIRECTIVE) or line.startswith(THUMB_FUNC_START_DIRECTIVE):
+            if any(line.startswith(directive) for directive in FUNC_START_DIRECTIVES):
                 break
             
             if ':' in line:
@@ -230,7 +232,7 @@ def main():
             continue
         
         for line in disasm[disasm_functions[name] + 1:]:
-            if line.startswith(ARM_FUNC_START_DIRECTIVE) or line.startswith(THUMB_FUNC_START_DIRECTIVE):
+            if any(line.startswith(directive) for directive in FUNC_START_DIRECTIVES):
                 break
             
             extern_symbol = get_referenced_symbol(symbols, line.rstrip())
@@ -239,7 +241,8 @@ def main():
                 and not extern_symbol.startswith('#')
                 and symbols.get(extern_symbol, None) is None
                 and (extern_symbol.startswith('_Z') or extern_symbol not in defined_symbols)
-                and extern_symbol not in ('pc', 'lr', 'r0')
+                and extern_symbol not in ('pc', 'lr')
+                and not extern_symbol.startswith('r')
             )
             if is_really_extern:
                 extern_symbols.add(extern_symbol)
@@ -247,7 +250,7 @@ def main():
     for extern_symbol in extern_symbols:
         result += f"\tEXTERN {extern_symbol}\n"
     
-    result += "\n"
+    result += "\n\tREQUIRE8\n\tPRESERVE8\n\n"
     
     # Handle sorting of symbols
     sorted_syms = [symbol for name, symbol in symbols.items() if name in disasm_functions]

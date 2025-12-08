@@ -28,7 +28,7 @@ def main():
     for dirname, dirs, files in os.walk("split"):
         dirpath = Path(dirname)
         
-        for file in files:
+        for file in sorted(files):
             filepath = dirpath / file
             units.append(get_unit(filepath))
     
