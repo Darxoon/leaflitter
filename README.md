@@ -2,6 +2,9 @@
 
 A WIP decompilation of Paper Mario: Sticker Star (Europe)
 
+> [!IMPORTANT]
+> This project has moved to <https://codeberg.org/Ivylag/leaflitter>
+
 ## Getting Started
 
 ### Requirements
